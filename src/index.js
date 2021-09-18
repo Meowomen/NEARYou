@@ -35,7 +35,7 @@ async function initContract() {
     window.contract = await new nearApi.Contract(account, window.nearConfig.contractName, {
       viewMethods: ['get_key_balance'],
       // Change methods can modify the state. But you don't receive the returned value when called.
-      changeMethods: ['send', 'send_limited', 'send_limited'],
+      changeMethods: ['send', 'send_limited', 'send_nft'],
       // Sender is the account ID to initialize transactions.
       sender: window.currentUser.accountId,
     });
