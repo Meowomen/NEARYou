@@ -10,7 +10,6 @@ async function initContract() {
   window.nearConfig = getConfig(process.env.NODE_ENV || 'development');
 
   window.keyStore = new nearApi.keyStores.BrowserLocalStorageKeyStore(window.localStorage, 'nearlib:keystore:');
-  // console.log(window.keyStore)
   window.near = await nearApi.connect(Object.assign({ deps: { keyStore: window.keyStore } }, window.nearConfig));
 
   window.contractAccount = new nearApi.Account(window.near.connection, window.nearConfig.contractName);
@@ -35,7 +34,7 @@ async function initContract() {
     window.contract = await new nearApi.Contract(account, window.nearConfig.contractName, {
       viewMethods: ['get_key_balance'],
       // Change methods can modify the state. But you don't receive the returned value when called.
-      changeMethods: ['send', 'send_limited', 'send_nft'],
+      changeMethods: ['send', 'send_limited'],
       // Sender is the account ID to initialize transactions.
       sender: window.currentUser.accountId,
     });

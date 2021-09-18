@@ -1,4 +1,5 @@
-const CONTRACT_NAME = 'sender_test16.testnet';
+const CONTRACT_NAME = 'contract_test_5.testnet';
+const NFT_CONTRACT_NAME = 'nft_mint_test.testnet';
 
 function getConfig(env) {
   switch (env) {
@@ -8,6 +9,7 @@ function getConfig(env) {
         networkId: 'default',
         nodeUrl: 'https://rpc.mainnet.near.org',
         contractName: 'near',
+        nftContractName: NFT_CONTRACT_NAME,
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org',
       };
@@ -17,6 +19,7 @@ function getConfig(env) {
         networkId: 'default',
         nodeUrl: 'https://rpc.testnet.near.org',
         contractName: CONTRACT_NAME,
+        nftContractName: NFT_CONTRACT_NAME,
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org',
       };
@@ -25,6 +28,7 @@ function getConfig(env) {
         networkId: 'betanet',
         nodeUrl: 'https://rpc.betanet.near.org',
         contractName: CONTRACT_NAME,
+        nftContractName: NFT_CONTRACT_NAME,
         walletUrl: 'https://wallet.betanet.near.org',
         helperUrl: 'https://helper.betanet.near.org',
       };
@@ -35,6 +39,7 @@ function getConfig(env) {
         keyPath: `${process.env.HOME}/.near/validator_key.json`,
         walletUrl: 'http://localhost:4000/wallet',
         contractName: CONTRACT_NAME,
+        nftContractName: NFT_CONTRACT_NAME,
       };
     case 'test':
     case 'ci':
@@ -42,6 +47,7 @@ function getConfig(env) {
         networkId: 'shared-test',
         nodeUrl: 'https://rpc.ci-testnet.near.org',
         contractName: CONTRACT_NAME,
+        nftContractName: NFT_CONTRACT_NAME,
         masterAccount: 'test.near',
       };
     case 'ci-betanet':
@@ -49,6 +55,7 @@ function getConfig(env) {
         networkId: 'shared-test-staging',
         nodeUrl: 'https://rpc.ci-betanet.near.org',
         contractName: CONTRACT_NAME,
+        nftContractName: NFT_CONTRACT_NAME,
         masterAccount: 'test.near',
       };
     default:
