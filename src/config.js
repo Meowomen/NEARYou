@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'linkdrop';
+const CONTRACT_NAME = 'sender_test16.testnet';
 
 function getConfig(env) {
   switch (env) {
