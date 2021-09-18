@@ -1,9 +1,13 @@
 import 'regenerator-runtime/runtime';
 import React, { useState, useEffect } from 'react';
 import * as nearApi from 'near-api-js';
+import * as clipboard from 'clipboard-polyfill/text';
 import { nearTo, nearToInt, toNear, BOATLOAD_OF_GAS, DROP_GAS, NETWORK_ID, ACCESS_KEY_ALLOWANCE } from './util/near-util';
 import './Drops.scss';
 import { downloadFile } from './util';
+
+const get = (k) => JSON.parse(localStorage.getItem(k) || '[]');
+const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
 const Drops = (props) => {
   const { contractName, nftContractName, walletUrl } = window.nearConfig;
@@ -19,12 +23,19 @@ const Drops = (props) => {
     accountId = window.prompt('Your AccountId?');
   }
 
-  useEffect(() => {
-    fetchNFTs();
-  }, []);
+  const dropStorageKey = '__drops_' + accountId;
 
   const [secretKey, setSecretKey] = useState('');
   const [nfts, setNfts] = useState();
+  const [drops, setDrops] = useState([]);
+
+  useEffect(() => {
+    updateDrops();
+  }, []);
+
+  useEffect(() => {
+    fetchNFTs();
+  }, [drops]);
 
   function onChangeInputSecretKey(e) {
     setSecretKey(e.target.value);
@@ -33,8 +44,21 @@ const Drops = (props) => {
   async function fetchNFTs() {
     const helperUrl = `https://helper.nearapi.org/v1/batch/[{"contract":"${nftContractName}","method":"nft_tokens","args":{},"batch":{"from_index":"0","step":"50","flatten":[]},"sort":{"path":"metadata.issued_at"}}]`;
     const lists = await fetch(helperUrl).then((res) => res.json());
-    const nftList = lists[0];
-    setNfts(nftList.filter((nft) => nft.owner_id === accountId));
+    const nftList = [];
+
+    for (let nft of lists[0]) {
+      if (nft.owner_id === account_id) {
+        for (let drop of drops) {
+          if (nft.token_id === drop.nft_id) {
+            nft.walletLink = await getWalletLink(drop.public_key);
+          }
+        }
+
+        nftList.push(nft);
+      }
+    }
+
+    setNfts(nftList);
   }
 
   async function approveUser(nft_id) {
@@ -58,6 +82,10 @@ const Drops = (props) => {
     const public_key = (newKeyPair.public_key = newKeyPair.publicKey.toString().replace('ed25519:', ''));
 
     downloadKeyFile(public_key, newKeyPair);
+
+    newKeyPair.nft_id = nft_id;
+    newKeyPair.ts = Date.now();
+    await addDrop(newKeyPair);
 
     const { contract } = window;
     try {
@@ -102,6 +130,40 @@ const Drops = (props) => {
     }
   }
 
+  async function getWalletLink(public_key) {
+    const { secretKey } = await getDrop(public_key);
+    return `${walletUrl}/create/${contractName}/${secretKey}`;
+  }
+
+  async function getDrop(public_key) {
+    const drops = (await get(dropStorageKey)) || [];
+    return drops.find((d) => d.public_key === public_key);
+  }
+
+  async function useDrop(public_key) {
+    const drops = (await get(dropStorageKey)) || [];
+    const drop = drops.find((d) => d.public_key === public_key);
+    drop.used = true;
+    await set(dropStorageKey, drops);
+    updateDrops();
+  }
+
+  async function addDrop(newKeyPair) {
+    const drops = (await get(dropStorageKey)) || [];
+    drops.push(newKeyPair);
+    await set(dropStorageKey, drops);
+    updateDrops();
+  }
+
+  async function updateDrops() {
+    const drops = (await get(dropStorageKey)) || [];
+    for (let drop of drops) {
+      const { public_key: key } = drop;
+      drop.walletLink = await getWalletLink(key);
+    }
+    setDrops(drops);
+  }
+
   return (
     <div className="root">
       <div>
@@ -127,7 +189,17 @@ const Drops = (props) => {
                   NFT #{parseInt(k) + 1}: [token id] {nfts[k].token_id} [title] {nfts[k].metadata.title}
                 </p>
                 <button onClick={() => approveUser(nfts[k].token_id)}>Approve</button>
-                <button onClick={() => fundDropNft(nfts[k].token_id)}>Create NFT #{nfts[k].token_id} Drop</button>
+                <button onClick={() => fundDropNft(nfts[k].token_id)}>Drop</button>
+                {nfts[k].walletLink && (
+                  <button
+                    onClick={async () => {
+                      await clipboard.writeText(nfts[k].walletLink);
+                      alert('Create Near Wallet link copied to clipboard');
+                    }}
+                  >
+                    Copy Near Wallet Link
+                  </button>
+                )}
               </div>
             );
           })}
