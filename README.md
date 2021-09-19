@@ -1,78 +1,160 @@
-<br />
-<br />
+# NEARYou Demo
 
-<p>
-<img src="https://nearprotocol.com/wp-content/themes/near-19/assets/img/logo.svg?t=1553011311" width="240">
-</p>
+## About NEARYou
 
-## Linkdrop example with contract account deployment
+NEARYou allows NEAR wallet user(sender) to create link for giving their NFT(Non-Fungible-Token). Their friends(receiver) can claim NFT through the link. NEARYou contract stores sender's NFT's token_id(NFT id) and NEAR for activaing new account to send NFT when receiver requests claim.
 
-## About the app
-The app allows you to send funds to the Linkdrop contract which will create "Drops". You will have a list of these in local storage and you can remove them at any time. This claims the funds back to your current account.
+## How NEARYou Demo Works
 
-**NOTE:** If you follow the wallet link of a drop, be warned it will not create accounts because your contract is not eligible to create the `.testnet` domain accounts.
+Sender, who has NFT:
 
-Instead, click "Share Drop Link" and visit your own drop.
+- Login with NEAR web wallet.
+- Choose NFT that they want to send in "My NFTs" section.
+- Click "Approve" button to give authority to NEARYou contract. (This might take some time to NEAR protocol reflects the change. After a moment, the button will change to "Drop" automatically.)
+- Cilck "Drop" button to get link for dropping NFT.
+- Send copied link to receiver.
 
-You will now see a *URL Drop* heading with some information about the drop. This is what another user would see if they used your URL.
+Receiver, who has NEAR wallet account:
 
-You can either:
-1. claim the funds
-2. create an account
-3. create a contract account (deploys a locked multisig account)
+- Click the link that sender gave you.
+- Paste the link in the box and click claim button.
+- Get the NFT.
 
-## Contract
-For more details on the linkdrop contract:
-https://github.com/near/near-linkdrop
+Receiver, who doesn’t have NEAR wallet account:
 
-## Quickstart
-```
-yarn && yarn dev
-```
+- Click the link that sender gave you.
+- Make new NEAR wallet account.
+- Get the NFT.
 
-## Deploying your own contract
-It's recommended you create a sub account to handle your contract deployments:
-```
-near login
-near create_account [account_id] --masterAccount [your_account_id] --initialBalance [1-5 N]
-```
-Now update config.js and set:
-```
-const CONTRACT_NAME = [account_id]
-```
+## Code
 
-## The Linkdrop contract and calling it from JS
+### Repo Structure - /src
 
-All calls to the contract can be found in `src/Drops.js`.
-
-The original linkdrop contract is here:
-https://github.com/nearprotocol/near-linkdrop
-
-An additional function is added to the regular linkdrop contract:
-```
-pub fn create_limited_contract_account
-```
-This takes 3 additional arguments over the existing `pub fn create_account_and_claim` function.
-In order to successfully invoke from JS you must pass in the following:
-```
-new_account_id: string,
-new_public_key: string,
-allowance: string,
-contract_bytes: [...new Uint8Array(contract_bytes)],
-method_names: [...new Uint8Array(new TextEncoder().encode(`
-    methods,account,is_limited_too_call
-`))]
+```jsx
+├── App.css
+├── App.js
+├── App.test.js
+├── Drops.js
+├── Drops.scss
+├── __mocks__
+│   └── fileMock.js
+├── __snapshots__
+│   └── App.test.js.snap
+├── apis
+│   └── index.js
+├── assets
+│   ├── gray_near_logo.svg
+│   ├── logo.svg
+│   └── near.svg
+├── config.js
+├── favicon.ico
+├── index.html
+├── index.js
+├── jest.init.js
+├── main.test.js
+├── util
+│   ├── near-util.js
+│   └── util.js
+└── wallet
+    └── login
+        └── index.html
 ```
 
-##### IMPORTANT: Make sure you have the latest version of NEAR Shell and Node Version > 10.x 
+- `config.js` : manage network connection.
+- `drop.js` : manage making linkdrop and claim NFT.
 
-1. [Node.js](https://nodejs.org/en/download/package-manager/)
-2. near-shell
-```
-npm i -g near-shell
-```
-### To run on NEAR testnet
+### drop.js
 
-```bash
-yarn && yarn dev
+drop.js has functions that calls NEARYou contract's core function. drop.js has `createNFTdrop()` , `approveUser()` and `getContract()` function which calls NEARYou contract's `send()` , `nft_approve()` .
+
+**createNFTdrop()**
+
+```jsx
+async function fundDropNft(nft_id) {
+    const newKeyPair = getNewKeyPair();
+    const public_key = (newKeyPair.public_key = newKeyPair.publicKey
+      .toString()
+      .replace("ed25519:", ""));
+
+    downloadKeyFile(public_key, newKeyPair);
+
+    newKeyPair.nft_id = nft_id;
+    newKeyPair.ts = Date.now();
+    await addDrop(newKeyPair);
+
+    const { contract } = window;
+    try {
+      const amount = toNear(minimumGasFee);
+      await contract.send(
+        { public_key: public_key, nft_id: nft_id },
+        BOATLOAD_OF_GAS,
+        amount
+      );
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+```
+
+- `createNFTdrop()` creates `newKeyPair` .
+- `createNFTdrop()` calls NEARYou's `send()` and passes `public key` and `nft_id` .
+
+a**pproveUser()**
+
+```jsx
+async function approveUser(nft_id) {
+    const account = (window.account = window.walletConnection.account());
+    const nftContract = await new nearApi.Contract(account, nftContractName, {
+      viewMethods: ["get_key_balance"],
+      changeMethods: ["nft_approve"],
+      sender: window.currentUser.accountId,
+    });
+
+    try {
+      const amount = toNear(minimumGasFee);
+      const result = await nftContract.nft_approve(
+        { token_id: nft_id, account_id: contractName },
+        BOATLOAD_OF_GAS,
+        amount
+      );
+      console.log("result: ", result);
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+```
+
+- `approveUser()` get current login account and nft contract.
+- `approveUser()` calls nft contract's `nft_approve()` to give authority to the NEARYou contract.
+
+## Getting Started
+
+### Installation
+
+Clone this repository
+
+```jsx
+git clone 
+cd 
+```
+
+Install dependencies
+
+```jsx
+yarn
+```
+
+Modify config.js
+
+```jsx
+const CONTRACT_NAME = 'YOUR_NEARYou_CONTRACT';
+const NFT_CONTRACT_NAME = 'NTF_MINTED_CONTRACT';
+```
+
+- [NEARYou contract](https://github.com/Meowomen/NEARYou_contract)
+
+Run
+
+```jsx
+yarn dev
 ```
