@@ -38,7 +38,6 @@ async function initContract() {
       // Sender is the account ID to initialize transactions.
       sender: window.currentUser.accountId,
     });
-    // console.log(contract)
   }
 }
 
