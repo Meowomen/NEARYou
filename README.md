@@ -134,8 +134,8 @@ async function approveUser(nft_id) {
 Clone this repository
 
 ```jsx
-git clone 
-cd 
+git clone https://github.com/Meowomen/NEARYou.git
+cd NEARYou
 ```
 
 Install dependencies
