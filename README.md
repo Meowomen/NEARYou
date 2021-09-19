@@ -1,13 +1,13 @@
 # NEARYou Demo
 
 ## 🗝 Table of Contents
-- [About NEARYou](https://github.com/Meowomen/NEARYou#about-nearyou)
-- [Getting Started](https://github.com/Meowomen/NEARYou#getting-started)
-- [How NEARYou Demo Works](https://github.com/Meowomen/NEARYou#how-nearyou-demo-works)
+- [About NEARYou](https://github.com/Meowomen/NEARYou#-about-nearyou)
+- [Getting Started](https://github.com/Meowomen/NEARYou#-getting-started)
+- [How NEARYou Demo Works](https://github.com/Meowomen/NEARYou#-how-nearyou-demo-works)
   - [Features](https://github.com/Meowomen/NEARYou#features)
   - [Repo structure](https://github.com/Meowomen/NEARYou#repo-structure---src)
   - [Drop.js](https://github.com/Meowomen/NEARYou#dropjs)
-- [Suggestions](https://github.com/Meowomen/NEARYou#suggestions)
+- [Suggestions](https://github.com/Meowomen/NEARYou#-suggestions)
 
 ## 🔎 About NEARYou
 ### For [2021 NEAR MetaBUIDL Hackathon](https://near.org/metabuidl)
