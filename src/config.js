@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'createclaim2.testnet';
+const CONTRACT_NAME = 'createclaim8.testnet';
 const NFT_CONTRACT_NAME = 'nft_mint_test.testnet';
 
 function getConfig(env) {

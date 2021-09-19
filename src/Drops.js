@@ -2,12 +2,10 @@ import 'regenerator-runtime/runtime';
 import React, { useState, useEffect } from 'react';
 import * as nearApi from 'near-api-js';
 import * as clipboard from 'clipboard-polyfill/text';
-import { nearTo, nearToInt, toNear, BOATLOAD_OF_GAS, DROP_GAS, NETWORK_ID, ACCESS_KEY_ALLOWANCE } from './util/near-util';
+import { nearTo, toNear, BOATLOAD_OF_GAS, NETWORK_ID, getNewKeyPair } from './util/near-util';
 import './Drops.scss';
-import { downloadFile } from './util';
-
-const get = (k) => JSON.parse(localStorage.getItem(k) || '[]');
-const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+import { get, set, downloadKeyFile } from './util/util';
+import { fetchNftList } from './apis/index';
 
 const Drops = (props) => {
   const { contractName, nftContractName, walletUrl } = window.nearConfig;
@@ -22,8 +20,8 @@ const Drops = (props) => {
   if (!accountId || accountId.length === 0) {
     accountId = window.prompt('Your AccountId?');
   }
-
   const dropStorageKey = '__drops_' + accountId;
+  const minimumGasFee = 1.2;
 
   const [secretKey, setSecretKey] = useState('');
   const [nfts, setNfts] = useState();
@@ -42,23 +40,25 @@ const Drops = (props) => {
   }
 
   async function fetchNFTs() {
-    const helperUrl = `https://helper.nearapi.org/v1/batch/[{"contract":"${nftContractName}","method":"nft_tokens","args":{},"batch":{"from_index":"0","step":"50","flatten":[]},"sort":{"path":"metadata.issued_at"}}]`;
-    const lists = await fetch(helperUrl).then((res) => res.json());
+    const AllNftList = await fetchNftList(nftContractName);
+    setNfts(await filterNFTList(AllNftList, drops));
+  }
+
+  async function filterNFTList(AllNftList, drops) {
     const nftList = [];
 
-    for (let nft of lists[0]) {
+    for (let nft of AllNftList) {
       if (nft.owner_id === account_id) {
         for (let drop of drops) {
           if (nft.token_id === drop.nft_id) {
             nft.walletLink = await getWalletLink(drop.public_key);
           }
         }
-
         nftList.push(nft);
       }
     }
 
-    setNfts(nftList);
+    return nftList;
   }
 
   async function approveUser(nft_id) {
@@ -70,7 +70,7 @@ const Drops = (props) => {
     });
 
     try {
-      const amount = toNear(1.2);
+      const amount = toNear(minimumGasFee);
       await nftContract.nft_approve({ token_id: nft_id, account_id: contractName }, BOATLOAD_OF_GAS, amount);
     } catch (e) {
       console.warn(e);
@@ -78,7 +78,7 @@ const Drops = (props) => {
   }
 
   async function fundDropNft(nft_id) {
-    const newKeyPair = nearApi.KeyPair.fromRandom('ed25519');
+    const newKeyPair = getNewKeyPair();
     const public_key = (newKeyPair.public_key = newKeyPair.publicKey.toString().replace('ed25519:', ''));
 
     downloadKeyFile(public_key, newKeyPair);
@@ -89,7 +89,7 @@ const Drops = (props) => {
 
     const { contract } = window;
     try {
-      const amount = toNear(1.2);
+      const amount = toNear(minimumGasFee);
       await contract.send({ public_key: public_key, nft_id: nft_id }, BOATLOAD_OF_GAS, amount);
     } catch (e) {
       console.warn(e);
@@ -120,14 +120,6 @@ const Drops = (props) => {
       sender: contractName,
     });
     return contract;
-  }
-
-  function downloadKeyFile(public_key, newKeyPair) {
-    const downloadKey = window.confirm('Download keypair before funding?');
-    if (downloadKey) {
-      const { secretKey, public_key: publicKey } = JSON.parse(JSON.stringify(newKeyPair));
-      downloadFile(public_key + '.txt', JSON.stringify({ publicKey, secretKey }));
-    }
   }
 
   async function getWalletLink(public_key) {
@@ -185,6 +177,9 @@ const Drops = (props) => {
           Object.keys(nfts).map((k) => {
             return (
               <div key={nfts[k].token_id}>
+                <div>
+                  <img className="nft-image" src={nfts[k].metadata.media} />
+                </div>
                 <p>
                   NFT #{parseInt(k) + 1}: [token id] {nfts[k].token_id} [title] {nfts[k].metadata.title}
                 </p>

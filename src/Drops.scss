@@ -1,17 +1,24 @@
-
 .root {
-	width: 375px;
-	border: 2px solid #ddd;
-	background: white;
-	box-shadow: 0 4px 16px #eee;
-	padding: 16px;
-	word-wrap: break-word;
+  width: 375px;
+  border: 2px solid #ddd;
+  background: white;
+  box-shadow: 0 4px 16px #eee;
+  padding: 16px;
+  word-wrap: break-word;
 }
 
-h2, h3, h4, p {
-	color: black;
+h2,
+h3,
+h4,
+p {
+  color: black;
 }
 
 .drop {
-	border-top: 2px solid #ddd;
+  border-top: 2px solid #ddd;
+}
+
+.nft-image {
+  width: 100%;
+  max-width: 350px;
 }
