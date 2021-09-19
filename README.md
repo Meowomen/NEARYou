@@ -17,7 +17,7 @@ NEARYou allows NEAR wallet users(sender) to create a link for gifting their NFTs
 
 **Receiver, who has NEAR wallet account:**
 
-- Click the link that sender gave you.
+- Login with NEAR web wallet.
 - Paste the link in the box and click claim button.
 - Get the NFT.
 
@@ -25,7 +25,7 @@ NEARYou allows NEAR wallet users(sender) to create a link for gifting their NFTs
 
 - Click the link that sender gave you.
 - Make new NEAR wallet account.
-- Get the NFT.
+- Get the NFT. (There could be a blockSignature matching bug after creating account, but the creation and NFT-drop work successfully.)
 
 ## Code
 
@@ -130,31 +130,29 @@ async function approveUser(nft_id) {
 
 ## Getting Started
 
-### Installation
-
-Clone this repository
+#### Clone this repository
 
 ```jsx
 git clone https://github.com/Meowomen/NEARYou.git
 cd NEARYou
 ```
 
-Install dependencies
+#### Install dependencies
 
 ```jsx
 yarn
 ```
 
-Modify config.js
+#### Modify config.js
 
 ```jsx
 const CONTRACT_NAME = 'YOUR_NEARYou_CONTRACT';
 const NFT_CONTRACT_NAME = 'NFT_MINTED_CONTRACT'; // account that minted your NFT
 ```
 - Make sure to deploy [NEARYou contract](https://github.com/Meowomen/NEARYou_contract#getting-started) and init with your ``NFT_MINTED_CONTRACT`` as an argument.
-- If you don't have an NFT, you can deploy a minting contract [here](https://github.com/kwklly/NEP171_Factory).
+- If you don't have NFT, you can deploy a minting contract [here](https://github.com/kwklly/NEP171_Factory).
 
-Run
+#### Run
 
 ```jsx
 yarn dev
@@ -164,7 +162,7 @@ yarn dev
 
 - Update [``createNewAccount``](https://github.com/near/near-wallet/blob/b98294ed8125ca63b6123f56195cc6d35995df37/packages/frontend/src/utils/wallet.js#L409) function in NEAR wallet
 
-``fundingContract`` and ``fundingAccount`` must be included in the drop-link to receive a linkdrop at the same time as account creation through the official wallet. However, if both exist, wallet call the function ``createNewAccountLinkdrop``, which [calls the ``create_account_and_claim``](https://github.com/near/near-wallet/blob/b98294ed8125ca63b6123f56195cc6d35995df37/packages/frontend/src/utils/wallet.js#L489) in the ``fundingContract``. For ``NEARYou`` to work in the official wallet, both the function name and the number of factors had to be the same. However, we needed the id of the ``NFT_MINTED_CONTRACT`` in ``create_account_and_claim`` [to transfer nft](https://github.com/Meowomen/NEARYou_contract/blob/master/src/lib.rs#L149), so we declared it a global variable through the init function because it shouldn't be hard-coded for scalability. If NEAR wallet flexibly handles account creation with ``fundingAccounts`` and ``fundingContracts``, init function will not be necessary.
+``fundingContract`` and ``fundingAccount`` must be included in the drop-link to receive NFT at the same time as account creation through the official wallet. However, if both exist, wallet call the function ``createNewAccountLinkdrop``, which [calls the ``create_account_and_claim``](https://github.com/near/near-wallet/blob/b98294ed8125ca63b6123f56195cc6d35995df37/packages/frontend/src/utils/wallet.js#L489) in the ``fundingContract``. For NEARYou contract to work in the official wallet, both the function name and the number of factors had to be the same. However, we needed the id of the ``NFT_MINTED_CONTRACT`` in ``create_account_and_claim`` [to transfer nft](https://github.com/Meowomen/NEARYou_contract/blob/master/src/lib.rs#L149), so we declared it a global variable through the init function because it shouldn't be hard-coded for scalability. If NEAR wallet flexibly handles account creation with ``fundingAccounts`` and ``fundingContracts``, init function will not be necessary.
 
 - Support `subaccount creation` in NEAR wallet
 
