@@ -2,7 +2,7 @@
 
 ## 🗝 Table of Contents
 - [About NEARYou](https://github.com/Meowomen/NEARYou#-about-nearyou)
-- [Getting Started](https://github.com/Meowomen/NEARYou#-getting-started)
+- [Getting Started](https://github.com/Meowomen/NEARYou#%EF%B8%8F-getting-started)
 - [How NEARYou Demo Works](https://github.com/Meowomen/NEARYou#-how-nearyou-demo-works)
   - [Features](https://github.com/Meowomen/NEARYou#features)
   - [Repo structure](https://github.com/Meowomen/NEARYou#repo-structure---src)
@@ -14,8 +14,8 @@
 NEARYou allows NEAR wallet users(sender) to create a link for gifting their NFTs(Non-Fungible-Token) which follow [NEP-171](https://github.com/near/NEPs/blob/ea409f07f8/specs/Standards/NonFungibleToken/Core.md) standard. The user's friends(receiver) can claim NFT through the link. NEARYou contract stores the sender's NFT ``token_id`` and minimum amount of NEAR to activate new account.
 
 ### Contributors
-- [Juyeon Lee](https://github.com/kwklly) | Ewha Womans University & DSRV
-- [Seungwon Choi](https://github.com/seungwon2) | Ewha Womans University & DSRV
+- [Juyeon Lee](https://github.com/kwklly) | Ewha Womans University
+- [Seungwon Choi](https://github.com/seungwon2) | Ewha Womans University
 - [Heesung Bae](https://github.com/HeesungB) | DSRV
 
 ## 🏃‍♀️ Getting Started
